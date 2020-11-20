@@ -23,7 +23,7 @@ namespace HangfireServer
                .UseSimpleAssemblyNameTypeSerializer()
                .UseIgnoredAssemblyVersionTypeResolver()
                .UseRecommendedSerializerSettings()
-              .UseSqlServerStorage(@"Data Source=hsasql12devtxn.reisys.com;database=gems;uid=gemsuser;pwd=gemsuser;", new SqlServerStorageOptions
+              .UseSqlServerStorage(@"", new SqlServerStorageOptions
               {
                   CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
                   SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
