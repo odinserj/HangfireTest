@@ -22,7 +22,6 @@ namespace HangfireClient
                     SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
                     QueuePollInterval = TimeSpan.Zero,
                     UseRecommendedIsolationLevel = true,
-                    UsePageLocksOnDequeue = true,
                     DisableGlobalLocks = true
                 });
 
@@ -31,10 +30,7 @@ namespace HangfireClient
             IBackgroundJobClient client = new BackgroundJobClient();
             IState state = new EnqueuedState();
 
-            client.Enqueue<Implementation>(x => x.DoWork());
-
-            
-            //client.Create<Implementation>(x => x.DoWork(), state);
+            client.Enqueue<EbmCoreService>(x => x.Execute("business/sleep", null));
 
         }
     }
