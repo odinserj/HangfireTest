@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
+﻿using System.Threading;
 
 namespace Interface
 {
-    public class Implementation : IEbmCoreService
+    [Dispatcher("business/sleep")]
+    public class Implementation : IDispatcher
     {
-        public void DoWork()
+        public void Dispatch(object[] args)
         {
             Thread.Sleep(30000);
         }

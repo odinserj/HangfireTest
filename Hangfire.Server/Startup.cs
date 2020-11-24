@@ -33,13 +33,27 @@ namespace Hangfire.Server
                SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
                QueuePollInterval = TimeSpan.Zero,
                UseRecommendedIsolationLevel = true,
-               UsePageLocksOnDequeue = true,
                DisableGlobalLocks = true
            })
            );
 
             services.AddHangfireServer();
 
+            services.AddSingleton<IDispatcherRegistry>(provider =>
+            {
+                var registry = new DispatcherRegistry();
+
+                var dispatchers = provider.GetServices<IDispatcher>();
+                foreach (var dispatcher in dispatchers)
+                {
+                    var attr = dispatcher.GetType().GetCustomAttribute<DispatcherAttribute>();
+                    var message = attr != null ? attr.Message : dispatcher.GetType().Name;
+
+                    registry.TryRegister(message, dispatcher);
+                }
+
+                return registry;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -70,9 +84,9 @@ namespace Hangfire.Server
             {
                 foreach (Type type in assembly.GetTypes())
                 {
-                    if (typeof(IEbmCoreService).IsAssignableFrom(type))
+                    if (typeof(IDispatcher).IsAssignableFrom(type))
                     {
-                        services.AddTransient(typeof(IEbmCoreService), type);
+                        services.AddTransient(typeof(IDispatcher), type);
                     }
                 }
             }
