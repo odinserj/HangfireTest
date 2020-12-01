@@ -100,7 +100,7 @@ namespace Hangfire.Server
             foreach (var file in allfiles)
             {
                 FileInfo info = new FileInfo(file);
-                plugInAssemblyList.Add(Assembly.LoadFile(info.FullName));
+                plugInAssemblyList.Add(Assembly.LoadFrom(info.FullName));
             }
 
             return plugInAssemblyList;
