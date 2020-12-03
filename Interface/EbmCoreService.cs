@@ -14,6 +14,7 @@ namespace Interface
             _registry = registry ?? throw new ArgumentNullException(nameof(registry));
         }
 
+        [CustomQueue]
         [DisplayName("EBM ({0})")]
         public void Execute(CustomJob job)
         {
