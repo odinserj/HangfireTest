@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Hangfire.Common;
 using Hangfire.SqlServer;
 using Interface;
 using Microsoft.AspNetCore.Builder;
@@ -21,6 +22,9 @@ namespace Hangfire.Server
         public void ConfigureServices(IServiceCollection services)
         {
             ConfigurePluginAssemblies(services);
+
+            JobFilterProviders.Providers.Add(new CustomJobFilterProvider());
+
             services.AddHangfire(opt => opt
             .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
             .UseColouredConsoleLogProvider()

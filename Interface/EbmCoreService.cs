@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using Hangfire.Common;
 using Hangfire.States;
 
@@ -14,7 +16,6 @@ namespace Interface
             _registry = registry ?? throw new ArgumentNullException(nameof(registry));
         }
 
-        [CustomQueue]
         [DisplayName("EBM ({0})")]
         public void Execute(CustomJob job)
         {
@@ -23,18 +24,22 @@ namespace Interface
         }
     }
 
-    [AttributeUsage(AttributeTargets.Method)]
-    public sealed class CustomQueue : JobFilterAttribute, IElectStateFilter
+    public class CustomJobFilterProvider : IJobFilterProvider
     {
-        public void OnStateElection(ElectStateContext context)
+        public IEnumerable<JobFilter> GetFilters(Job job)
         {
-            if (context.CandidateState is EnqueuedState enqueuedState)
+            foreach (var arg in job.Args)
             {
-                foreach (object arg in context.BackgroundJob.Job.Args)
+                if (arg is CustomJob customJob)
                 {
-                    if (arg is CustomJob customJob)
+                    foreach (var filter in customJob.Filters)
                     {
-                        enqueuedState.Queue = customJob.Queue;
+                        var jobFilter = filter as JobFilterAttribute;
+
+                        yield return new JobFilter(
+                            filter,
+                            JobFilterScope.Method,
+                            jobFilter?.Order);
                     }
                 }
             }
@@ -43,15 +48,15 @@ namespace Interface
 
     public class CustomJob
     {
-        public CustomJob(string message, string queue, params object[] args)
+        public CustomJob(string message, Attribute[] filters, params object[] args)
         {
             Message = message ?? throw new ArgumentNullException(nameof(message));
-            Queue = queue ?? throw new ArgumentNullException(nameof(queue));
+            Filters = filters ?? throw new ArgumentNullException(nameof(filters));
             Args = args ?? throw new ArgumentNullException(nameof(args));
         }
 
         public string Message { get; }
-        public string Queue { get; }
+        public Attribute[] Filters { get; }
         public object[] Args { get; }
     }
 }

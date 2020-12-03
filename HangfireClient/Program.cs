@@ -4,6 +4,7 @@ using Hangfire.SqlServer;
 using Hangfire.States;
 using Interface;
 using System;
+using Hangfire.Common;
 
 namespace HangfireClient
 {
@@ -25,14 +26,16 @@ namespace HangfireClient
                     DisableGlobalLocks = true
                 });
 
+            JobFilterProviders.Providers.Add(new CustomJobFilterProvider());
+
             IBackgroundJobClient client = new BackgroundJobClient();
             IState state = new EnqueuedState();
 
             client.Enqueue<EbmCoreService>(x => x.Execute(
-                new CustomJob("business/sleep", "low")));
+                new CustomJob("business/sleep", new Attribute[] { new QueueAttribute("low") })));
 
             client.Enqueue<EbmCoreService>(x => x.Execute(
-                new CustomJob("business/sleep", "critical")));
+                new CustomJob("business/sleep", new Attribute[] { new QueueAttribute("critical") })));
         }
     }
 }
