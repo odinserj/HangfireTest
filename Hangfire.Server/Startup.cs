@@ -37,7 +37,8 @@ namespace Hangfire.Server
            })
            );
 
-            services.AddHangfireServer();
+            services.AddHangfireServer(options =>
+                options.Queues = new [] { "critical", "default", "low" });
 
             services.AddSingleton<IDispatcherRegistry>(provider =>
             {

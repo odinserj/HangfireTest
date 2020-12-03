@@ -25,13 +25,14 @@ namespace HangfireClient
                     DisableGlobalLocks = true
                 });
 
-     
-
             IBackgroundJobClient client = new BackgroundJobClient();
             IState state = new EnqueuedState();
 
-            client.Enqueue<EbmCoreService>(x => x.Execute("business/sleep", null));
+            client.Enqueue<EbmCoreService>(x => x.Execute(
+                new CustomJob("business/sleep", "low")));
 
+            client.Enqueue<EbmCoreService>(x => x.Execute(
+                new CustomJob("business/sleep", "critical")));
         }
     }
 }
